@@ -1,0 +1,394 @@
+import re
+import time
+import pytest
+import selenium.webdriver.common.action_chains
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
+@pytest.fixture()
+def setup():
+    driver = webdriver.Chrome()
+    driver.get('https://svburger1.co.il/#/HomePage')
+    driver.maximize_window()
+    driver.implicitly_wait(5)
+    yield driver
+    driver.close()
+
+
+def test_sanity(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH,'//h5[text() = "Combo Meal"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//div[@class="popup"]/div/div/div/div/div[4]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(4)
+    total_element = driver.find_element(By.XPATH, "//*[@id='root']/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]")
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "Total 64.9$"
+    assert actual_total == expected_total, f"Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+users_signup = [["moshoj@gmail.com", "147741!A"], ["mojoh@walla.com", "147741#A"], ["moshib@gmail.com", "153698!ABC"]]
+
+@pytest.mark.parametrize("anything", users_signup)
+
+#Sign Up Page Testing
+
+def test_signup(setup, anything):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[2]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[1]').send_keys("etzhak")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[2]').send_keys("vitzman")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[3]').send_keys(anything[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[4]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[5]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+
+
+def test_signup_password_valid_6_to_14(setup, anything):
+    driver = setup
+    assert len(anything[1]) < 6, "Password length must be between 6 and 14 characters."
+    assert len(anything[1]) > 14, "Password length must be between 6 and 14 characters."
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[2]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[1]').send_keys("etzhak")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[2]').send_keys("vitzman")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[3]').send_keys(anything[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[4]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[5]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+def test_signup_password_valid_special_char(setup, anything):
+    driver = setup
+    special_char_pattern = r'[!@#$%^&*(),.?":{}|<>]'
+    assert re.search(special_char_pattern, anything[1]), "Password must Contain a Special Character."
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[2]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[1]').send_keys("etzhak")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[2]').send_keys("vitzman")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[3]').send_keys(anything[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[4]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[5]').send_keys(anything[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+wrong_pass_users_signup = [["moshoj@gmail.com", "1477B"], ["shozasd@gmail.com", "1234567890A"]]
+
+@pytest.mark.parametrize("wrong_pass_length", wrong_pass_users_signup)
+
+def test_signup_wrong_password_length(setup, wrong_pass_length):
+    driver = setup
+    assert len(wrong_pass_length[1]) > 14 or len(wrong_pass_length[1]) < 6, "Password length must be between 6 and 14 characters."
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[2]').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[1]').send_keys("etzhako")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[2]').send_keys("vitzman")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[3]').send_keys(wrong_pass_length[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[4]').send_keys(wrong_pass_length[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[5]').send_keys(wrong_pass_length[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/button').click()
+    alert = WebDriverWait(driver, 5).until(EC.alert_is_present())
+    assert alert.text == "Error: Password should be at least 6 characters"
+    time.sleep(4)
+
+
+
+
+#Login Page Testing
+
+def test_valid_login(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+def test_login_with_walla_mail(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhak@walla.co.il")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("A123123b")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+def test_login_forgot_password_button(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="forgotId"]').click()
+    driver.find_element(By.XPATH, '//*[@id="inputForgotPassword"]').send_keys("etzhak@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="email"]/button').click()
+
+users_login = [["etzhako@gmail.com", "1231234"], ["moshoj@gmail.com", "147741!AcD"], ["moshib@gmail.com", "153698!ABCDC"]]
+
+@pytest.mark.parametrize("get_users", users_login)
+
+def test_login_password_length_6_to_14(setup, get_users):
+    driver = setup
+    assert len(get_users[1]) < 6, "Password length must be between 6 and 14 characters."
+    assert len(get_users[1]) > 14, "Password length must be between 6 and 14 characters."
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys(get_users[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys(get_users[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    assert driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').is_displayed()
+    time.sleep(4)
+
+wrong_pass_users_Login = [["etzhako@gmail.com", "12312"], ["moshikoliko@walla.com", "147741!AcD15348"]]
+
+@pytest.mark.parametrize("wrong_pass", wrong_pass_users_Login)
+
+def test_login_wrong_password(setup, wrong_pass):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[2]').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[1]').send_keys("etzhako")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[2]').send_keys("vitzman")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[3]').send_keys(wrong_pass[0])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[4]').send_keys(wrong_pass[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/input[5]').send_keys(wrong_pass[1])
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/form/button').click()
+    alert = WebDriverWait(driver, 5).until(EC.alert_is_present())
+    assert alert.text == "Failed to log in"
+    time.sleep(4)
+
+
+
+
+
+#Ordering & Menu Testing
+
+def test_combo_and_kids_meal(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Kids Meal"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(6)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(4)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "107.8$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_combo_and_burger(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Burger"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "114.4$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_combo_and_vegan(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Vegan"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "114.4$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_combo_and_sides(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Combo Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Sides"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "78.1$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_kids_meal_and_burger(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Kids Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Burger"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "92.4$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_kids_meal_and_vegan(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Kids Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Vegan"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "92.4$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_kids_meal_and_sides(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Kids Meal"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Sides"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "56.1$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_burger_and_vegan(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Burger"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Vegan"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "99$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_burger_and_sides(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Burger"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Sides"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(5)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "62.7$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
+
+def test_vegan_and_sides(setup):
+    driver = setup
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/a[1]/button').click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[1]').send_keys("etzhako@gmail.com")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/input[2]').send_keys("123123")
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/form/div/button').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Vegan"]').click()
+    driver.find_element(By.XPATH, '//h5[text() = "Sides"]').click()
+    element = driver.find_element(By.XPATH, '//button[@class="btn btn-primary"][2]')
+    time.sleep(4)
+    actions = selenium.webdriver.common.action_chains.ActionChains(driver)
+    actions.move_to_element(element).click() .perform()
+    time.sleep(4)
+    driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/div[5]/div[1]/button').click()
+    time.sleep(4)
+    assert driver.find_element(By.XPATH, '//h1[text() = "SVBurger Summary"]').is_displayed()
+    time.sleep(6)
+    total_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[2]/div[1]/div/div/div[2]/div/div/div/div[2]/h2[1]')
+    actual_total = total_element.text.strip() # Extract and clean the text
+    expected_total = "62.7$"
+    assert actual_total == expected_total, "Total sum is incorrect. Expected: {expected_total}, but got: {actual_total}"
