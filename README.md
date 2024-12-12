@@ -1,5 +1,5 @@
-- 👋 Hi, I’m @Etzhak
-- 👀 I’m interested in ... Learning
-- 🌱 I’m currently learning ... JavaScript; QA and Automation
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
+- 👋 Hi, I’m @Yitzhak
+- 👀 interested in finding a job
+- 🌱 Finished Studies at SVCollege QA Automation Engineer 
+- 💞️ looking to collaborate on Projects as a QA automation Engineer 
+- 📫 Available on my mail adress: etzhak@gmail.com
